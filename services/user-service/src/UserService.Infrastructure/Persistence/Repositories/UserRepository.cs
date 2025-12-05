@@ -26,7 +26,11 @@ namespace UserService.Infrastructure.Persistence.Repositories
 
         public async Task<User> GetByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users
+                .Include(u => u.Addresses)
+                .Include(u => u.Preference)
+                .Include(u => u.Statistics)
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task AddAsync(User user)

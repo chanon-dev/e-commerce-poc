@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UserService.Api.Middleware;
 using UserService.Application.Interfaces;
 using UserService.Application.UseCases;
 using UserService.Domain.Repositories;
@@ -29,6 +30,9 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// Global exception handler (must be first in pipeline)
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

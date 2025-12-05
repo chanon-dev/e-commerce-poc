@@ -6,6 +6,7 @@ using UserService.Application.DTOs.Responses;
 using UserService.Application.Interfaces;
 using UserService.Domain.Entities;
 using UserService.Domain.Enums;
+using UserService.Domain.Exceptions;
 using UserService.Domain.Repositories;
 
 namespace UserService.Application.UseCases
@@ -30,12 +31,29 @@ namespace UserService.Application.UseCases
 
         public async Task<UserResponse> CreateUserAsync(CreateUserRequest request)
         {
+            // Validate input
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                throw new ArgumentException("Email is required.", nameof(request));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.FirstName))
+            {
+                throw new ArgumentException("First name is required.", nameof(request));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.LastName))
+            {
+                throw new ArgumentException("Last name is required.", nameof(request));
+            }
+
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);
             if (existingUser != null)
             {
-                throw new Exception("User with this email already exists.");
+                throw new DuplicateEmailException(request.Email);
             }
 
+            var now = DateTime.UtcNow;
             var user = new User
             {
                 UserId = Guid.NewGuid(),
@@ -43,7 +61,9 @@ namespace UserService.Application.UseCases
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Status = UserStatus.Active,
-                KeycloakId = Guid.NewGuid().ToString() // Placeholder: In real app, this comes from Identity Service
+                KeycloakId = Guid.NewGuid().ToString(), // Placeholder: In real app, this comes from Identity Service
+                CreatedAt = now,
+                UpdatedAt = now
             };
 
             await _userRepository.AddAsync(user);
