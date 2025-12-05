@@ -1,11 +1,12 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using UserService.Api.Middleware;
 using UserService.Application.Interfaces;
-using UserService.Application.UseCases;
+using UserService.Application.Mappings;
+using UserService.Application.Validators;
 using UserService.Domain.Repositories;
 using UserService.Infrastructure.Persistence;
 using UserService.Infrastructure.Persistence.Repositories;
-using UserService.Application.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,9 @@ builder.Services.AddScoped<IUserService, UserService.Application.UseCases.UserSe
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
+
+// FluentValidation
+builder.Services.AddValidatorsFromAssemblyContaining<CreateUserRequestValidator>();
 
 var app = builder.Build();
 

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AutoMapper;
+using FluentValidation;
 using UserService.Application.DTOs.Requests;
 using UserService.Application.DTOs.Responses;
 using UserService.Application.Interfaces;
@@ -15,36 +16,35 @@ namespace UserService.Application.UseCases
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IValidator<CreateUserRequest> _createUserValidator;
 
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        public UserService(
+            IUserRepository userRepository,
+            IMapper mapper,
+            IValidator<CreateUserRequest> createUserValidator)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _createUserValidator = createUserValidator;
         }
 
         public async Task<UserResponse> GetUserByIdAsync(Guid id)
         {
             var user = await _userRepository.GetByIdAsync(id);
-            if (user == null) return null;
+            if (user == null)
+            {
+                throw new UserNotFoundException(id);
+            }
             return _mapper.Map<UserResponse>(user);
         }
 
         public async Task<UserResponse> CreateUserAsync(CreateUserRequest request)
         {
-            // Validate input
-            if (string.IsNullOrWhiteSpace(request.Email))
+            // Validate input using FluentValidation
+            var validationResult = await _createUserValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
             {
-                throw new ArgumentException("Email is required.", nameof(request));
-            }
-
-            if (string.IsNullOrWhiteSpace(request.FirstName))
-            {
-                throw new ArgumentException("First name is required.", nameof(request));
-            }
-
-            if (string.IsNullOrWhiteSpace(request.LastName))
-            {
-                throw new ArgumentException("Last name is required.", nameof(request));
+                throw new ValidationException(validationResult.Errors);
             }
 
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);

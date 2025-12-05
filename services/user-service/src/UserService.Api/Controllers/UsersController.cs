@@ -24,7 +24,7 @@ namespace UserService.Api.Controllers
         public async Task<ActionResult<UserResponse>> GetUser(Guid id)
         {
             var user = await _userService.GetUserByIdAsync(id);
-            return user != null ? Ok(user) : NotFound();
+            return Ok(user);
         }
 
         [HttpPost]
