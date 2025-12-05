@@ -47,8 +47,8 @@ namespace UserService.Application.UseCases
                 throw new ValidationException(validationResult.Errors);
             }
 
-            var existingUser = await _userRepository.GetByEmailAsync(request.Email);
-            if (existingUser != null)
+            // Check if email already exists (optimized query)
+            if (await _userRepository.ExistsByEmailAsync(request.Email))
             {
                 throw new DuplicateEmailException(request.Email);
             }
