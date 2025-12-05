@@ -28,9 +28,9 @@ namespace UserService.Application.UseCases
             _createUserValidator = createUserValidator;
         }
 
-        public async Task<UserResponse> GetUserByIdAsync(Guid id)
+        public async Task<UserResponse> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _userRepository.GetByIdAsync(id, cancellationToken);
             if (user == null)
             {
                 throw new UserNotFoundException(id);
@@ -38,17 +38,17 @@ namespace UserService.Application.UseCases
             return _mapper.Map<UserResponse>(user);
         }
 
-        public async Task<UserResponse> CreateUserAsync(CreateUserRequest request)
+        public async Task<UserResponse> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
         {
             // Validate input using FluentValidation
-            var validationResult = await _createUserValidator.ValidateAsync(request);
+            var validationResult = await _createUserValidator.ValidateAsync(request, cancellationToken);
             if (!validationResult.IsValid)
             {
                 throw new ValidationException(validationResult.Errors);
             }
 
             // Check if email already exists (optimized query)
-            if (await _userRepository.ExistsByEmailAsync(request.Email))
+            if (await _userRepository.ExistsByEmailAsync(request.Email, cancellationToken))
             {
                 throw new DuplicateEmailException(request.Email);
             }
@@ -66,8 +66,8 @@ namespace UserService.Application.UseCases
                 UpdatedAt = now
             };
 
-            await _userRepository.AddAsync(user);
-            await _userRepository.SaveChangesAsync();
+            await _userRepository.AddAsync(user, cancellationToken);
+            await _userRepository.SaveChangesAsync(cancellationToken);
 
             // Publish event (UserCreated) - logic to be added
 

@@ -21,9 +21,9 @@ namespace UserService.Api.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(UserResponse), 200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<UserResponse>> GetUser(Guid id)
+        public async Task<ActionResult<UserResponse>> GetUser(Guid id, CancellationToken cancellationToken)
         {
-            var user = await _userService.GetUserByIdAsync(id);
+            var user = await _userService.GetUserByIdAsync(id, cancellationToken);
             return Ok(user);
         }
 
@@ -31,9 +31,9 @@ namespace UserService.Api.Controllers
         [ProducesResponseType(typeof(UserResponse), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<ActionResult<UserResponse>> CreateUser([FromBody] CreateUserRequest request)
+        public async Task<ActionResult<UserResponse>> CreateUser([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
         {
-            var user = await _userService.CreateUserAsync(request);
+            var user = await _userService.CreateUserAsync(request, cancellationToken);
             return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
         }
     }
