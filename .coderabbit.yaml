@@ -1,7 +1,7 @@
 language: "th-TH"
 
 reviews:
-  profile: "assertive" # หรือเปลี่ยนเป็น "assertive" ถ้าอยากให้รีวิวเข้มๆ
+  profile: "assertive" # assertive = รีวิวแบบเข้มงวด, chill = รีวิวแบบสบายๆ
   request_changes_workflow: false
   high_level_summary: true
-  poem: true # ตั้งเป็น true ถ้าอยากให้แต่งกลอนปิดท้าย (แต่ภาษาไทยอาจจะยังไม่เก่งมาก)
+  poem: true # แต่งกลอนปิดท้ายแต่ละ PR review

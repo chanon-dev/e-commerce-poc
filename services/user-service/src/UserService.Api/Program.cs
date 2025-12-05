@@ -41,11 +41,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Apply migrations at startup (for POC convenience)
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // db.Database.Migrate(); // Uncomment to auto-migrate if DB exists
-}
-
 app.Run();

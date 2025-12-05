@@ -21,7 +21,7 @@ namespace UserService.Api.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(UserResponse), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetUser(Guid id)
+        public async Task<ActionResult<UserResponse>> GetUser(Guid id)
         {
             var user = await _userService.GetUserByIdAsync(id);
             return user != null ? Ok(user) : NotFound();
@@ -29,17 +29,12 @@ namespace UserService.Api.Controllers
 
         [HttpPost]
         [ProducesResponseType(typeof(UserResponse), 201)]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        public async Task<ActionResult<UserResponse>> CreateUser([FromBody] CreateUserRequest request)
         {
-            try
-            {
-                var user = await _userService.CreateUserAsync(request);
-                return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var user = await _userService.CreateUserAsync(request);
+            return CreatedAtAction(nameof(GetUser), new { id = user.UserId }, user);
         }
     }
 }
