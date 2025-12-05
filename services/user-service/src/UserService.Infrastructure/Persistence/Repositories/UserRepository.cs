@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using UserService.Domain.Entities;
 using UserService.Domain.Exceptions;
 using UserService.Domain.Repositories;
@@ -67,10 +68,10 @@ namespace UserService.Infrastructure.Persistence.Repositories
             }
             catch (DbUpdateException ex)
             {
-                // Handle unique constraint violation (duplicate email)
-                if (ex.InnerException?.Message.Contains("duplicate key") == true ||
-                    ex.InnerException?.Message.Contains("unique constraint") == true ||
-                    ex.InnerException?.Message.Contains("IX_Users_Email") == true)
+                // Handle PostgreSQL unique constraint violation (duplicate email)
+                if (ex.InnerException is PostgresException postgresEx &&
+                    postgresEx.SqlState == "23505" && // unique_violation
+                    postgresEx.ConstraintName == "IX_users_Email")
                 {
                     // Extract email from the failing entity
                     var entry = ex.Entries.FirstOrDefault();
