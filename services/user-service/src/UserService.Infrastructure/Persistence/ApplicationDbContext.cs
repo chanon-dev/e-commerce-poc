@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.Domain.Entities;
-using UserService.Infrastructure.Persistence.Configurations;
 
 namespace UserService.Infrastructure.Persistence
 {
@@ -17,8 +16,10 @@ namespace UserService.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
-            // Add other configurations as needed
+            base.OnModelCreating(modelBuilder);
+
+            // Auto-discover and apply all IEntityTypeConfiguration implementations
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
     }
 }

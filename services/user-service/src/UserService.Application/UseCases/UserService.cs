@@ -47,6 +47,7 @@ namespace UserService.Application.UseCases
             };
 
             await _userRepository.AddAsync(user);
+            await _userRepository.SaveChangesAsync();
 
             // Publish event (UserCreated) - logic to be added
 
